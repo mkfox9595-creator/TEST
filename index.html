@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Réstotest - Restaurant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFF8EC;
+    --board:#2E4633;
+    --board-light:#3B5A44;
+    --mustard:#F0A83A;
+    --mustard-dark:#B9721A;
+    --tomato:#DD4B39;
+    --tomato-dark:#9C2E20;
+    --mint:#5FAE8C;
+    --mint-dark:#2C6B4F;
+    --ink:#2B2620;
+    --ink-soft:#6B6155;
+    --line:#E4D9C2;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(240,168,58,0.14) 0, transparent 45%),
+      radial-gradient(circle at 90% 85%, rgba(95,174,140,0.12) 0, transparent 45%);
+    font-family:'Nunito', sans-serif;
+    color:var(--ink);
+    padding-bottom:60px;
+  }
+  h1,h2,h3,.display{font-family:'Baloo 2', sans-serif;}
+  header{
+    background:var(--board);
+    background-image:linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+    padding:28px 20px 34px;
+    text-align:center;
+    color:#F4EFDE;
+    border-bottom:6px solid var(--mustard);
+    position:relative;
+  }
+  header input{
+    background:transparent;
+    border:none;
+    border-bottom:2px dashed rgba(244,239,222,0.4);
+    color:#FFFDF6;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(28px,7vw,44px);
+    text-align:center;
+    width:100%;
+    max-width:520px;
+    padding:4px 8px;
+  }
+  header input:focus{outline:none; border-bottom-color:var(--mustard);}
+  header p{margin:10px 0 0; color:#CFE0D3; font-size:15px;}
+  .wrap{max-width:920px; margin:0 auto; padding:26px 18px;}
+  .section-title{
+    font-size:22px; font-weight:700; margin:0 0 4px; color:var(--board);
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-sub{color:var(--ink-soft); font-size:14px; margin:0 0 18px;}
+  .add-dish{
+    background:var(--card);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+    display:grid;
+    grid-template-columns:64px 1.4fr 1fr auto;
+    gap:10px;
+    align-items:center;
+    margin-bottom:26px;
+  }
+  .add-dish input{
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    font-family:'Nunito', sans-serif;
+    font-size:15px;
+    width:100%;
+  }
+  .add-dish input:focus{outline:none; border-color:var(--mustard-dark);}
+  .add-dish input#new-emoji{text-align:center; font-size:22px; padding:8px 4px;}
+  .btn{
+    border:none; border-radius:12px; cursor:pointer;
+    font-family:'Baloo 2', sans-serif; font-weight:700;
+    padding:12px 18px; font-size:15px;
+    transition:transform .12s ease;
+  }
+  .btn:active{transform:scale(0.96);}
+  .btn-mustard{background:var(--mustard); color:#3B2600;}
+  .btn-mustard:hover{background:#E39A2A;}
+  .btn-tomato{background:var(--tomato); color:#fff;}
+  .btn-tomato:hover{background:#C7402F;}
+  .btn-mint{background:var(--mint); color:#fff;}
+  .btn-mint:hover{background:#4C9A79;}
+  .btn-ghost{background:transparent; color:var(--ink-soft); border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--ink-soft);}
+  .menu-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(160px,1fr));
+    gap:14px;
+    margin-bottom:34px;
+  }
+  .dish{
+    background:var(--card);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:16px 14px;
+    text-align:center;
+    position:relative;
+  }
+  .dish .emoji{font-size:36px; display:block; margin-bottom:6px;}
+  .dish .name{font-weight:700; font-size:15px; margin-bottom:2px;}
+  .dish .price{color:var(--mustard-dark); font-weight:800; font-family:'Baloo 2'; font-size:16px; margin-bottom:10px;}
+  .dish .add-btn{width:100%;}
+  .dish .del{
+    position:absolute; top:6px; right:6px;
+    background:none; border:none; color:var(--ink-soft);
+    font-size:13px; cursor:pointer; padding:4px;
+  }
+  .empty{
+    border:2px dashed var(--line); border-radius:16px; padding:24px;
+    text-align:center; color:var(--ink-soft); font-size:14px;
+  }
+  .ticket{
+    background:var(--card); border:1.5px solid var(--line);
+    border-radius:18px; padding:20px; margin-bottom:34px;
+  }
+  .ticket-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 0; border-bottom:1px dashed var(--line); font-size:15px;
+  }
+  .ticket-row:last-of-type{border-bottom:none;}
+  .ticket-row .qty-ctrl{display:flex; align-items:center; gap:8px;}
+  .ticket-row .qty-ctrl button{
+    width:26px; height:26px; border-radius:8px; border:1.5px solid var(--line);
+    background:#fff; cursor:pointer; font-weight:700; color:var(--ink);
+  }
+  .ticket-total{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-top:14px; padding-top:14px; border-top:2px solid var(--board);
+  }
+  .ticket-total span:last-child{font-family:'Baloo 2'; font-size:26px; font-weight:800; color:var(--board);}
+  .ticket-actions{display:flex; gap:10px; margin-top:16px;}
+  .ticket-actions .btn{flex:1;}
+  .orders{display:flex; flex-direction:column; gap:14px;}
+  .order-card{
+    background:var(--card); border:1.5px solid var(--line); border-radius:16px;
+    padding:16px 18px;
+  }
+  .order-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;}
+  .order-head .num{font-weight:700; color:var(--board);}
+  .order-head .status{font-size:13px; padding:3px 10px; border-radius:20px; font-weight:700;}
+  .status-waiting{background:#FCE8D4; color:var(--mustard-dark);}
+  .status-paid{background:#E1F0E6; color:var(--mint-dark);}
+  .order-items{font-size:14px; color:var(--ink-soft); margin-bottom:10px; line-height:1.6;}
+  .order-foot{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;}
+  .order-total{font-family:'Baloo 2'; font-weight:800; font-size:18px; color:var(--board);}
+  .order-btns{display:flex; gap:8px;}
+  .order-btns .btn{padding:9px 14px; font-size:14px;}
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--board); color:#fff; padding:12px 20px; border-radius:12px;
+    font-weight:700; font-size:14px; opacity:0; transition:all .25s ease; z-index:60;
+    box-shadow:0 8px 20px rgba(0,0,0,0.18);
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(30,26,20,0.55);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:20px;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal{
+    background:var(--card); border-radius:22px; padding:32px 26px; max-width:340px;
+    width:100%; text-align:center;
+  }
+  .nfc-icon{
+    width:88px; height:88px; margin:0 auto 18px; border-radius:50%;
+    background:var(--mint); display:flex; align-items:center; justify-content:center;
+    color:#fff; position:relative;
+  }
+  .nfc-icon svg{width:42px; height:42px;}
+  .nfc-icon.pulsing::before, .nfc-icon.pulsing::after{
+    content:''; position:absolute; inset:0; border-radius:50%;
+    border:3px solid var(--mint); animation:pulse 1.4s ease-out infinite;
+  }
+  .nfc-icon.pulsing::after{animation-delay:.7s;}
+  @keyframes pulse{
+    0%{transform:scale(1); opacity:.9;}
+    100%{transform:scale(1.9); opacity:0;}
+  }
+  .modal h3{margin:0 0 6px; font-size:20px; color:var(--board);}
+  .modal p{margin:0 0 20px; color:var(--ink-soft); font-size:14px;}
+  .fake-note{font-size:12px; color:var(--ink-soft); margin-top:16px; font-style:italic;}
+  .nfc-icon.refused{background:var(--tomato);}
+  .nfc-icon.waiting{background:var(--mustard);}
+  .hold-bar{
+    width:100%; height:6px; background:var(--line); border-radius:6px;
+    overflow:hidden; margin:0 0 18px;
+  }
+  .hold-bar-fill{
+    height:100%; width:0%; background:var(--mint); border-radius:6px;
+    transition:width .12s linear;
+  }
+  .modal .btn-cancel{margin-top:6px;}
+  @media (max-width:520px){
+    .add-dish{grid-template-columns:52px 1fr; }
+    .add-dish input#new-price{grid-column:2;}
+    .add-dish button{grid-column:1 / -1;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <input id="restaurant-name" value="Chez Léo" maxlength="30">
+  <p>Fais ta carte, prends les commandes, encaisse (pour de faux) !</p>
+</header>
+
+<div class="wrap">
+
+  <div class="section-title"><span>📋</span> Ma carte</div>
+  <p class="section-sub">Ajoute les plats que tu veux vendre aujourd'hui.</p>
+
+  <div class="add-dish">
+    <input id="new-emoji" value="🍕" maxlength="2">
+    <input id="new-name" placeholder="Nom du plat">
+    <input id="new-price" placeholder="Prix (ex 4.50)" inputmode="decimal">
+    <button class="btn btn-mustard" onclick="addDish()">+ Ajouter</button>
+  </div>
+
+  <div class="menu-grid" id="menu-grid"></div>
+
+  <div class="section-title"><span>🧾</span> Addition en cours</div>
+  <p class="section-sub">Clique sur un plat de la carte pour l'ajouter ici.</p>
+
+  <div class="ticket" id="ticket-box">
+    <div id="ticket-empty" class="empty">L'addition est vide. Ajoute un plat !</div>
+    <div id="ticket-list"></div>
+    <div class="ticket-total" id="ticket-total-row" style="display:none;">
+      <span>Total</span><span id="ticket-total">0,00 €</span>
+    </div>
+    <div class="ticket-actions" id="ticket-actions" style="display:none;">
+      <button class="btn btn-ghost" onclick="clearTicket()">Annuler</button>
+      <button class="btn btn-mint" onclick="commander()">Commander</button>
+    </div>
+  </div>
+
+  <div class="section-title"><span>👨‍🍳</span> Commandes du jour</div>
+  <p class="section-sub">Encaisse et partage chaque commande.</p>
+
+  <div class="orders" id="orders-list">
+    <div class="empty" id="orders-empty">Aucune commande pour l'instant.</div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="pay-overlay">
+  <div class="modal">
+    <div class="nfc-icon pulsing" id="nfc-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M6 8.5a8 8 0 0 1 0 7"/>
+        <path d="M9.5 6a11.5 11.5 0 0 1 0 12"/>
+        <path d="M13 4a15 15 0 0 1 0 16"/>
+      </svg>
+    </div>
+    <h3 id="pay-title">Approche la carte...</h3>
+    <p id="pay-sub">Commande n°<span id="pay-num"></span> - <span id="pay-amount"></span></p>
+    <div class="hold-bar" id="hold-bar" style="display:none;"><div class="hold-bar-fill" id="hold-bar-fill"></div></div>
+    <button class="btn btn-ghost btn-cancel" onclick="cancelPayment()">Annuler</button>
+    <p class="fake-note">Vraie détection NFC : approche une carte/tag vierge et garde-la posée. Aucun vrai euro ne bouge 😉</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let menu = [];
+let order = {};
+let orders = [];
+let orderCounter = 1;
+
+function load(){
+  const savedMenu = localStorage.getItem('resto_menu');
+  const savedOrders = localStorage.getItem('resto_orders');
+  const savedCounter = localStorage.getItem('resto_counter');
+  const savedName = localStorage.getItem('resto_name');
+  menu = savedMenu ? JSON.parse(savedMenu) : [
+    {id:1, emoji:'🍕', name:'Pizza margherita', price:6},
+    {id:2, emoji:'🍟', name:'Frites maison', price:2.5},
+    {id:3, emoji:'🍔', name:'Burger géant', price:5.5},
+    {id:4, emoji:'🥤', name:'Soda', price:1.5},
+    {id:5, emoji:'🍦', name:'Glace vanille', price:2}
+  ];
+  orders = savedOrders ? JSON.parse(savedOrders) : [];
+  orderCounter = savedCounter ? parseInt(savedCounter) : 1;
+  if(savedName) document.getElementById('restaurant-name').value = savedName;
+}
+function saveMenu(){ localStorage.setItem('resto_menu', JSON.stringify(menu)); }
+function saveOrders(){
+  localStorage.setItem('resto_orders', JSON.stringify(orders));
+  localStorage.setItem('resto_counter', String(orderCounter));
+}
+document.getElementById('restaurant-name').addEventListener('input', e=>{
+  localStorage.setItem('resto_name', e.target.value);
+});
+
+function money(n){ return n.toFixed(2).replace('.', ',') + ' €'; }
+
+function renderMenu(){
+  const grid = document.getElementById('menu-grid');
+  grid.innerHTML = '';
+  menu.forEach(d=>{
+    const el = document.createElement('div');
+    el.className = 'dish';
+    el.innerHTML = `
+      <button class="del" onclick="removeDish(${d.id})" aria-label="Supprimer">✕</button>
+      <span class="emoji">${d.emoji}</span>
+      <div class="name">${d.name}</div>
+      <div class="price">${money(d.price)}</div>
+      <button class="btn btn-mustard add-btn" onclick="addToTicket(${d.id})">Ajouter</button>
+    `;
+    grid.appendChild(el);
+  });
+}
+
+function addDish(){
+  const emoji = document.getElementById('new-emoji').value.trim() || '🍽️';
+  const name = document.getElementById('new-name').value.trim();
+  const price = parseFloat(document.getElementById('new-price').value.replace(',','.'));
+  if(!name){ showToast("Donne un nom au plat !"); return; }
+  if(isNaN(price) || price < 0){ showToast("Le prix n'est pas valide."); return; }
+  menu.push({id: Date.now(), emoji, name, price});
+  saveMenu();
+  renderMenu();
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-price').value = '';
+  showToast(name + " ajouté à la carte !");
+}
+
+function removeDish(id){
+  menu = menu.filter(d=>d.id !== id);
+  saveMenu();
+  renderMenu();
+}
+
+function addToTicket(id){
+  order[id] = (order[id] || 0) + 1;
+  renderTicket();
+}
+function changeQty(id, delta){
+  order[id] = (order[id] || 0) + delta;
+  if(order[id] <= 0) delete order[id];
+  renderTicket();
+}
+function clearTicket(){
+  order = {};
+  renderTicket();
+}
+
+function renderTicket(){
+  const ids = Object.keys(order);
+  const list = document.getElementById('ticket-list');
+  const empty = document.getElementById('ticket-empty');
+  const totalRow = document.getElementById('ticket-total-row');
+  const actions = document.getElementById('ticket-actions');
+  list.innerHTML = '';
+  if(ids.length === 0){
+    empty.style.display = 'block';
+    totalRow.style.display = 'none';
+    actions.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  totalRow.style.display = 'flex';
+  actions.style.display = 'flex';
+  let total = 0;
+  ids.forEach(id=>{
+    const dish = menu.find(d=>d.id == id);
+    if(!dish) return;
+    const qty = order[id];
+    total += dish.price * qty;
+    const row = document.createElement('div');
+    row.className = 'ticket-row';
+    row.innerHTML = `
+      <span>${dish.emoji} ${dish.name}</span>
+      <div class="qty-ctrl">
+        <button onclick="changeQty(${id}, -1)">-</button>
+        <span>${qty}</span>
+        <button onclick="changeQty(${id}, 1)">+</button>
+        <span style="min-width:60px; text-align:right;">${money(dish.price * qty)}</span>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+  document.getElementById('ticket-total').textContent = money(total);
+}
+
+function commander(){
+  const ids = Object.keys(order);
+  if(ids.length === 0) return;
+  const items = ids.map(id=>{
+    const dish = menu.find(d=>d.id == id);
+    return {emoji:dish.emoji, name:dish.name, price:dish.price, qty:order[id]};
+  });
+  const total = items.reduce((s,i)=>s + i.price*i.qty, 0);
+  orders.unshift({num: orderCounter++, items, total, paid:false});
+  saveOrders();
+  order = {};
+  renderTicket();
+  renderOrders();
+  showToast("Commande n°" + (orderCounter-1) + " envoyée en cuisine !");
+}
+
+function renderOrders(){
+  const list = document.getElementById('orders-list');
+  const empty = document.getElementById('orders-empty');
+  list.innerHTML = '';
+  if(orders.length === 0){
+    list.appendChild(empty);
+    return;
+  }
+  orders.forEach(o=>{
+    const card = document.createElement('div');
+    card.className = 'order-card';
+    const itemsText = o.items.map(i=>`${i.qty}x ${i.emoji} ${i.name}`).join(', ');
+    card.innerHTML = `
+      <div class="order-head">
+        <span class="num">Commande n°${o.num}</span>
+        <span class="status ${o.paid ? 'status-paid' : 'status-waiting'}">${o.paid ? 'Payée' : 'En attente'}</span>
+      </div>
+      <div class="order-items">${itemsText}</div>
+      <div class="order-foot">
+        <span class="order-total">${money(o.total)}</span>
+        <div class="order-btns">
+          <button class="btn btn-ghost" onclick="shareOrder(${o.num})">📤 Partager</button>
+          ${o.paid ? '' : `<button class="btn btn-tomato" onclick="startPayment(${o.num})">💳 Payer</button>`}
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function findOrder(num){ return orders.find(o=>o.num === num); }
+
+const NFC_ICON_ANTENNA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 8.5a8 8 0 0 1 0 7"/><path d="M9.5 6a11.5 11.5 0 0 1 0 12"/><path d="M13 4a15 15 0 0 1 0 16"/></svg>';
+const NFC_ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg>';
+const NFC_ICON_CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+
+const HOLD_MS = 1200;
+const PRESENCE_TIMEOUT_MS = 450;
+let nfcReader = null;
+let nfcState = null;
+let currentPayOrder = null;
+let holdStartedAt = null;
+let lastSeenAt = null;
+let watchdogTimer = null;
+
+function setPayIcon(cls, html){
+  const icon = document.getElementById('nfc-icon');
+  icon.className = 'nfc-icon ' + cls;
+  if(html !== undefined) icon.innerHTML = html;
+}
+
+function setHoldBar(pct){
+  const bar = document.getElementById('hold-bar');
+  bar.style.display = pct === null ? 'none' : 'block';
+  if(pct !== null) document.getElementById('hold-bar-fill').style.width = pct + '%';
+}
+
+async function startPayment(num){
+  const o = findOrder(num);
+  if(!o) return;
+  currentPayOrder = o;
+  document.getElementById('pay-num').textContent = num;
+  document.getElementById('pay-amount').textContent = money(o.total);
+  document.getElementById('pay-overlay').classList.add('show');
+  setHoldBar(null);
+
+  if(!('NDEFReader' in window)){
+    nfcState = 'unsupported';
+    setPayIcon('refused', NFC_ICON_CROSS);
+    document.getElementById('pay-title').textContent = 'NFC non disponible';
+    document.getElementById('pay-sub').innerHTML = "Ce téléphone ou ce navigateur ne gère pas le NFC. Il faut Chrome sur Android, le NFC activé, et le site ouvert en HTTPS.";
+    return;
+  }
+
+  nfcState = 'waiting';
+  setPayIcon('pulsing waiting', NFC_ICON_ANTENNA);
+  document.getElementById('pay-title').textContent = 'Approche la carte...';
+  document.getElementById('pay-sub').textContent = 'Commande n°' + num + ' - ' + money(o.total);
+
+  try{
+    nfcReader = new NDEFReader();
+    await nfcReader.scan();
+    nfcReader.onreading = onNfcReading;
+    nfcReader.onreadingerror = () => {
+      if(nfcState === 'waiting' || nfcState === 'holding') refusePayment('Carte illisible. Réessaie.');
+    };
+    watchdogTimer = setInterval(checkPresence, 150);
+  } catch(err){
+    nfcState = 'error';
+    setPayIcon('refused', NFC_ICON_CROSS);
+    document.getElementById('pay-title').textContent = 'NFC bloqué';
+    document.getElementById('pay-sub').textContent = "Autorise le NFC pour ce site, ou vérifie qu'il est activé dans les réglages du téléphone.";
+  }
+}
+
+function onNfcReading(){
+  const now = Date.now();
+  lastSeenAt = now;
+  if(nfcState === 'waiting'){
+    nfcState = 'holding';
+    holdStartedAt = now;
+    setPayIcon('holding', NFC_ICON_ANTENNA);
+    document.getElementById('pay-title').textContent = 'Carte détectée, garde-la posée...';
+    setHoldBar(0);
+  }
+}
+
+function checkPresence(){
+  if(nfcState !== 'holding' && nfcState !== 'waiting') return;
+  const now = Date.now();
+  if(nfcState === 'holding'){
+    const held = now - holdStartedAt;
+    const sinceSeen = now - lastSeenAt;
+    if(sinceSeen > PRESENCE_TIMEOUT_MS){
+      refusePayment('Carte retirée trop vite. Paiement refusé.');
+      return;
+    }
+    const pct = Math.min(100, Math.round((held / HOLD_MS) * 100));
+    setHoldBar(pct);
+    if(held >= HOLD_MS){
+      acceptPayment();
+    }
+  }
+}
+
+function stopNfc(){
+  if(watchdogTimer){ clearInterval(watchdogTimer); watchdogTimer = null; }
+  if(nfcReader){
+    nfcReader.onreading = null;
+    nfcReader.onreadingerror = null;
+    nfcReader = null;
+  }
+}
+
+function acceptPayment(){
+  stopNfc();
+  nfcState = 'accepted';
+  setPayIcon('', NFC_ICON_CHECK);
+  document.getElementById('pay-title').textContent = 'Paiement accepté !';
+  setHoldBar(null);
+  if(currentPayOrder){
+    currentPayOrder.paid = true;
+    saveOrders();
+    renderOrders();
+  }
+  setTimeout(()=>{
+    document.getElementById('pay-overlay').classList.remove('show');
+  }, 1300);
+}
+
+function refusePayment(message){
+  stopNfc();
+  nfcState = 'refused';
+  setPayIcon('refused', NFC_ICON_CROSS);
+  document.getElementById('pay-title').textContent = 'Paiement refusé';
+  document.getElementById('pay-sub').textContent = message || 'La carte a été retirée trop tôt.';
+  setHoldBar(null);
+}
+
+function cancelPayment(){
+  stopNfc();
+  nfcState = null;
+  document.getElementById('pay-overlay').classList.remove('show');
+}
+
+function shareOrder(num){
+  const o = findOrder(num);
+  if(!o) return;
+  const name = document.getElementById('restaurant-name').value || 'Le restaurant';
+  const itemsText = o.items.map(i=>`${i.qty}x ${i.name} (${money(i.price*i.qty)})`).join('\n');
+  const text = `🍽️ ${name} - Commande n°${o.num}\n${itemsText}\n\nTotal : ${money(o.total)}${o.paid ? '\n✅ Payée' : ''}`;
+  if(navigator.share){
+    navigator.share({title: name + ' - Commande n°' + o.num, text}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>{
+      showToast("Commande copiée, colle-la dans un message !");
+    }).catch(()=>{
+      showToast("Impossible de partager sur cet appareil.");
+    });
+  }
+}
+
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+load();
+renderMenu();
+renderTicket();
+renderOrders();
+</script>
+
+</body>
+</html>
